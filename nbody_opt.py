@@ -4,6 +4,7 @@
     N-body simulation.
     
 """
+import itertools
 
 PI = 3.14159265358979323
 SOLAR_MASS = 4 * PI * PI
@@ -81,7 +82,7 @@ def advance(dt,pairs, localBodies =BODIES):
         r[2] += dt * vz
 
 
-def report_energy(e=0.0,pairs,BODIES=BODIES):
+def report_energy(pairs,BODIES=BODIES,e=0.0):
     '''
         compute the energy and return it so that it can be printed
     '''
@@ -138,7 +139,7 @@ def nbody(loops, reference, iterations,pairs):
         print(report_energy(pairs))
 
 if __name__ == '__main__':
-    pairs = [ (body1,body2) for body1 in BODIES.keys() for body2 in BODIES.keys() if body1 != body2 ]
-
+    pairs = list(itertools.combinations(BODIES.keys(), 2))
+    print (pairs)
     nbody(100, 'sun', 20000,pairs)
 
