@@ -3,7 +3,9 @@
     time: 46.2s
 
     cython optimized version:
-    time:     
+    time: 24.1
+
+        
 """
 import itertools
 
@@ -48,7 +50,7 @@ cdef dict BODIES = {
 
 cdef list pairsCopy = list(itertools.combinations(BODIES.keys(), 2))
 
-cdef void update_vs( float v1,float  v2,float dt,float dx,float dy,float dz,float m1,float m2):
+cdef void update_vs( list v1,list  v2,float dt,float dx,float dy,float dz,float m1,float m2):
     mag = dt * pow(dx * dx + dy * dy + dz * dz , -1.5)
     b_m1 = m1*mag
     b_m2 = m2*mag
@@ -68,7 +70,7 @@ cpdef void advance(float dt, list pairs, dict localBodies =BODIES):
     append = seenit.add
     bodyKeys = localBodies.keys()
     
-    cdef float x1,y1,z1,v1,m1,x2,y2,z2,v2,m2 
+    cdef float x1,y1,z1,m1,x2,y2,z2,m2 
     cdef list r, v1, v2
 
     for (body1,body2)in pairs:
@@ -96,7 +98,7 @@ cpdef float report_energy( list pairs,dict BODIES=BODIES,float e=0.0):
     cdef list bodyKeys = BODIES.keys()
     append = seenit.add
 
-    cdef float x1,y1,z1,v1,m1,x2,y2,z2,v2,m2 
+    cdef float x1,y1,z1,m1,x2,y2,z2,m2 
     cdef list r, v1, v2
     
     for (body1,body2)in pairs:
@@ -113,7 +115,7 @@ cpdef float report_energy( list pairs,dict BODIES=BODIES,float e=0.0):
         
     return e
 
-cpdef void offset_momentum(str ref, float  px=0.0,float  py=0.0,float  pz=0.0, dict localBodies = BODIES):
+cpdef void offset_momentum(tuple ref, float  px=0.0,float  py=0.0,float  pz=0.0, dict localBodies = BODIES):
     '''
         ref is the body in the center of the system
         offset values from this reference
@@ -152,11 +154,4 @@ cpdef void nbody(int loops,str reference,int  iterations, list pairs = pairsCopy
 def workAroundIpython():
     return nbody(100,'sun', 20000, pairsCopy)
 
-
-
-if __name__ == '__main__':
-    pairs = list(itertools.combinations(BODIES.keys(), 2))
-    nbody(100, 'sun', 20000,pairs)
-
-# print( nbody(100, 'sun', 20000,pairs)
 
