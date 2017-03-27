@@ -155,7 +155,7 @@ def workAroundIpython():
 
 
 if __name__ == '__main__':
-    cdef list pairs = list(itertools.combinations(BODIES.keys(), 2))
+    pairs = list(itertools.combinations(BODIES.keys(), 2))
     nbody(100, 'sun', 20000,pairs)
 
 # print( nbody(100, 'sun', 20000,pairs)
