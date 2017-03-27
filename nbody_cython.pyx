@@ -46,7 +46,7 @@ cdef dict BODIES = {
                  -9.51592254519715870e-05 * DAYS_PER_YEAR],
                 5.15138902046611451e-05 * SOLAR_MASS)}
 
-cdef list pairs = list(itertools.combinations(BODIES.keys(), 2))
+cdef list pairsCopy = list(itertools.combinations(BODIES.keys(), 2))
 
 cdef void update_vs( float v1,float  v2,float dt,float dx,float dy,float dz,float m1,float m2):
     mag = dt * pow(dx * dx + dy * dy + dz * dz , -1.5)
@@ -68,10 +68,13 @@ cpdef void advance(float dt, list pairs, dict localBodies =BODIES):
     append = seenit.add
     bodyKeys = localBodies.keys()
     
+    cdef float x1,y1,z1,v1,m1,x2,y2,z2,v2,m2 
+    cdef list r, v1, v2
+
     for (body1,body2)in pairs:
         if not (body2 in seenit):
-            ([x1, y1, z1], v1, m1) = localBodies[body1]
-            ([x2, y2, z2], v2, m2) = localBodies[body2]
+            ([ x1,  y1,  z1],  v1,  m1) = localBodies[body1]
+            ([ x2,  y2, z2], v2, m2) = localBodies[body2]
             (dx, dy, dz) = (x1-x2, y1-y2, z1-z2)
             update_vs(v1, v2, dt, dx, dy, dz, m1, m2)
             append(body1)
@@ -88,13 +91,17 @@ cpdef float report_energy( list pairs,dict BODIES=BODIES,float e=0.0):
     '''
         compute the energy and return it so that it can be printed
     '''
+
     seenit = set()
-    bodyKeys = BODIES.keys()
+    cdef list bodyKeys = BODIES.keys()
     append = seenit.add
+
+    cdef float x1,y1,z1,v1,m1,x2,y2,z2,v2,m2 
+    cdef list r, v1, v2
     
     for (body1,body2)in pairs:
         if (body1 != body2) and not (body2 in seenit):
-            ((x1, y1, z1), v1, m1) = BODIES[body1]
+            (( x1,  y1,  z1),  v1,  m1) = BODIES[body1]
             ((x2, y2, z2), v2, m2) = BODIES[body2]
             (dx, dy, dz) = (x1-x2, y1-y2, z1-z2)
             e -= (m1 * m2) / pow(dx * dx + dy * dy + dz * dz,0.5 )
@@ -106,14 +113,16 @@ cpdef float report_energy( list pairs,dict BODIES=BODIES,float e=0.0):
         
     return e
 
-cpdef void offset_momentum(str ref, px=0.0, py=0.0, pz=0.0,dict localBodies = BODIES):
+cpdef void offset_momentum(str ref, float  px=0.0,float  py=0.0,float  pz=0.0, dict localBodies = BODIES):
     '''
         ref is the body in the center of the system
         offset values from this reference
     '''
+    cdef float vx,vy,vz,m
+    cdef list r 
 
     for body in localBodies.keys():
-        (r, [vx, vy, vz], m) = localBodies[body]
+        ( r, [ vx, vy, vz], m) = localBodies[body]
         px -= vx * m
         py -= vy * m
         pz -= vz * m
@@ -124,7 +133,7 @@ cpdef void offset_momentum(str ref, px=0.0, py=0.0, pz=0.0,dict localBodies = BO
     v[2] = pz / m
 
 
-cpdef void nbody(int loops,str reference,int  iterations, list pairs = pairs):
+cpdef void nbody(int loops,str reference,int  iterations, list pairs = pairsCopy):
     '''
         nbody simulation
         loops - number of loops to run
@@ -141,7 +150,13 @@ cpdef void nbody(int loops,str reference,int  iterations, list pairs = pairs):
         print(report_energy(pairs))
 
 def workAroundIpython():
-    return nbody(100,'sun', 20000, pairs)
+    return nbody(100,'sun', 20000, pairsCopy)
+
+
+
+if __name__ == '__main__':
+    cdef list pairs = list(itertools.combinations(BODIES.keys(), 2))
+    nbody(100, 'sun', 20000,pairs)
 
 # print( nbody(100, 'sun', 20000,pairs)
 
