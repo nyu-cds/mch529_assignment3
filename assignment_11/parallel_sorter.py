@@ -4,10 +4,13 @@ Michael Higgins (mch529)
 This is a sorter that parallelizes the job between X processes.  X is 
 determined by running the command mpiexec -n X python parallel_sorter.py
 
-The user is then asked to pick a positive whole number that will be the number
-of numbers to be sorted. They are reprompted if they make a mistake in entry.
+10,000 random integers between 1 and 1000 are chosen, say they are set S.
+then bin sizes are (max(S)-min(S))/X
 
-
+process 0 makes S and sends subsets of S to process i with elements within 
+the range [min(ints)+i*(max - min)/X , min(ints)+(i+1)*(max - min)/X )
+The last bucket is inclusive to the last element.
+Each process then sorts the smaller set and sends the sorted data back to process 0.
 
 """
 
@@ -45,9 +48,8 @@ def split_into_chunks(ints, num_buckets):
     return chunks
 
 if rank ==0:
-    # handle input
     #make 10000 random numbers between 0 and 1000
-    random_numbers = np.random.randint(0,1000,2000)
+    random_numbers = np.random.randint(0,1000,10000)
     chunks =  split_into_chunks(random_numbers, num_processes)
     
 else:
