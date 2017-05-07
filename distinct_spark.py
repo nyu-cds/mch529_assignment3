@@ -24,6 +24,5 @@ if __name__ == '__main__':
 	words = text.flatMap(splitter)
 	words_mapped = words.map(lambda x: (x, 1))
 
-	# count the number of distinct words
-	# distinct_words = words_mapped.keys().distinct().count()
-	# print("The number of distinct words: ", distinct_words)
+	distinct_words = words_mapped.keys().distinct().count()
+	print("The number of distinct words: ", distinct_words)
